@@ -1,11 +1,18 @@
-import {useState} from "react";
+import {useState, useContext} from "react";
 import { Box, TextField, Button} from '@mui/material';
 import "../Styles/Login.css";
-// import {API} from "../sevice/api.js";
 import axios from "axios";
+import {DataContext} from "../context/DataProvider"
+import {useNavigate} from "react-router-dom";
 
-const Login = () => {
+
+const Login = ({setAuthStatus}) => {
+
+    const navigate =useNavigate();
+
     const imageURL = "https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png";
+
+    const {setAccount} = useContext(DataContext);
 
     const [ error,setError]=useState('')
     const [user,setUser] = useState(true);
@@ -14,16 +21,35 @@ const Login = () => {
         setUser(!user);
     }
 
-    // const [loginValues,setLoginValues] = useState({Username:"",Password:""});
+    const [loginValues,setLoginValues] = useState({Username:"",Password:""});
 
-    // function handleLoginChange(event){
-    //     const name = event.target.name;
-    //     const value = event.target.value;
-    //     setLoginValues((prevValue)=>{
-    //         return ({...prevValue,[name]:value})
-    //     })
-    //     console.log(loginValues);
-    // }
+    function handleLoginChange(event){
+        const name = event.target.name;
+        const value = event.target.value;
+        setLoginValues((prevLoginValues)=>{
+            return ({...prevLoginValues,[name]:value})
+        })
+    }
+
+    async function loginUser(){
+        await axios.post('http://localhost:8000/login', loginValues)
+        .then(response => {
+          if(response.status === 200){
+            console.log('Login successful:', response.data);
+
+            sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
+            sessionStorage.setItem('refreshToken',`Bearer ${response.data.refreshToken}`);
+            setAccount({username: response.data.username , name:response.data.name});
+            setAuthStatus(true);
+            navigate('/');
+          }
+
+        })
+        .catch(error => {
+          console.error('Error during Login:', error);
+          setError("Something Went Wrong! Please try Again")
+        });
+    }
 
     const [signUpValues,setSignUpValues] = useState({Name:"" , Username:"" , Password:""})
 
@@ -37,7 +63,6 @@ const Login = () => {
     }
 
     async function signUpUser(){    
-        console.log(signUpValues);
           await axios.post('http://localhost:8000/signUp', signUpValues)
             .then(response => {
               console.log('SignUp successful:', response.data);
@@ -55,9 +80,9 @@ const Login = () => {
     {user ?
         <Box className="box">
             <img src={imageURL} alt="Blog App Logo"/>
-            <TextField className= "text-field" variant="standard" label="Username" />
-            <TextField className= "text-field" variant="standard" label="Password"/>
-            <Button className="login-button" variant="contained">Login</Button>
+            <TextField className= "text-field" variant="standard" value={loginValues.Username} label="Username" name="Username" onChange={(e)=>{handleLoginChange(e)}}/>
+            <TextField className= "text-field" variant="standard" value={loginValues.Password} label="Password" name="Password" onChange={(e)=>{handleLoginChange(e)}}/>
+            <Button className="login-button" variant="contained" onClick={()=>{loginUser()}}>Login</Button>
             <p>OR</p>
             <Button className="signup-button" onClick={toggleuser}>Create an account</Button>
         </Box>

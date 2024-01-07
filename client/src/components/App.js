@@ -1,10 +1,39 @@
+import {useState} from "react";
+
+import DataProvider from "../context/DataProvider";
+import {BrowserRouter, Routes, Route , Outlet , Navigate} from "react-router-dom";
+
+//Components
 import Login from "./Login";
+import Home from "./Home";
+import Header from "./Header";
+
+const PrivateRoute = ({authStatus ,...props}) =>{
+   return authStatus ?
+   <>
+      <Header />
+      <Outlet />
+   </>
+   :
+   <Navigate replace to="/login" />
+}
 
 function App() {
+
+   const [authStatus,setAuthStatus] = useState(false);
+
   return (
-    <div>
-      <Login />
-    </div>
+    <DataProvider>
+       <BrowserRouter>
+          <Routes>
+             <Route path='/login' element={<Login setAuthStatus={setAuthStatus} />} />
+
+             <Route path="/" element={<PrivateRoute authStatus={authStatus} />} >
+                <Route path='/' element={<Home />} />
+             </Route>
+          </Routes>
+       </BrowserRouter>
+    </DataProvider>
   );
 }
 
