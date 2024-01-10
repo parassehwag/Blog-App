@@ -1,7 +1,7 @@
 import {Box,styled,FormControl,InputBase,Button,TextareaAutosize} from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import {useState,useEffect,useContext} from "react";
-import { useLocation , useNavigate} from "react-router-dom";
+import { useLocation , useNavigate , useParams} from "react-router-dom";
 import { DataContext } from "../../context/DataProvider";
 import axios from "axios";
 import getAccessToken from "../../utils/common-utils";
@@ -46,7 +46,7 @@ const TextArea = styled(TextareaAutosize)`
 
 
 
-const CreatePost = () =>{
+const Update = () =>{
     
     const[post,setPost]=useState({
         title:"",
@@ -62,8 +62,31 @@ const CreatePost = () =>{
 
     const location = useLocation();
     const navigate = useNavigate();
+    const {id} = useParams();
 
     const url = post.picture ? post.picture : "https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80";
+
+    useEffect(()=> {
+        let headers = {
+            'authorization': getAccessToken()
+          };
+        const fetchData = async() =>{
+            await axios.get('http://localhost:8000/postById',{
+                params: { id : id },
+                headers: headers
+              })
+            .then(response => {
+                if(response.status === 200){
+                    setPost(response.data);
+                    console.log(response.data);
+                }
+            })
+            .catch(error => {
+              console.error('Error during fetching post data by id', error);
+            });
+        }
+        fetchData();
+    },[])
 
     useEffect(()=>{
         const getImage = async() =>{
@@ -113,19 +136,19 @@ const CreatePost = () =>{
         })
     }
 
-    async function savePost(){
+    async function updateBlogPost(){
         let headers = {
             'authorization': getAccessToken()
           };
           console.log(headers);
 
-        await axios.post('http://localhost:8000/createPost', post ,{
+        await axios.put('http://localhost:8000/updatePost', post ,{
             headers: headers 
           } )
         .then(response => {
             if(response.status ===200){
-                console.log('Post Uploaded successful:', response.data);
-                navigate('/');
+                console.log('Post Updated successful:', response.data);
+                navigate(`/details/${id}`);
             }
         })
         .catch(error => {
@@ -146,17 +169,18 @@ const CreatePost = () =>{
                     onChange={(e)=> setFile(e.target.files[0])}
                 />.
 
-                <StyledinputField placeholder="Title" onChange={(e)=>{handlePostChange(e)}} name="title" />
-                <Button variant="contained" onClick={()=>{savePost()}}>Publish</Button>
+                <StyledinputField placeholder="Title" value={post.title} onChange={(e)=>{handlePostChange(e)}} name="title" />
+                <Button variant="contained" onClick={()=>{updateBlogPost()}}>Update</Button>
             </StyledForm>
             <TextArea 
                 minRows={5}
                 placeholder="Tell your Story..."
                 onChange={(e)=>{handlePostChange(e)}}
                 name="description"
+                value={post.description}
             />
         </StyledBox>
     )
     }
 
-export default CreatePost;
+export default Update;

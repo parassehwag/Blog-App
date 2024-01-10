@@ -1,3 +1,4 @@
+import { request } from "express";
 import Post from "../model/post.js";
 
 const createPost = async(req,res) =>{
@@ -40,5 +41,35 @@ const getPostById = async(req,res) =>{
     }
 }
 
+const updatePost = async(req,res) =>{
+    try{
+        const post = await Post.findOne({_id : req.body._id});
+        if(!post){
+            return res.status(404).json({msg:'post not found in db'})
+        }
+        await Post.updateOne({_id:req.body._id},{$set:req.body})
+
+        return res.status(200).json({msg:'post updated'})
+    }
+    catch(error){
+        return res.status(500).json({msg:error.message})
+    }
+}
+
+const deletePost = async(req,res)=>{
+    try{
+        const post = await Post.findOne({_id : req.query.id});
+        if(!post){
+            return res.status(404).json({msg:'post not found in db'})
+        }
+        await Post.deleteOne({_id:req.query.id})
+
+        return res.status(200).json({msg:'post deleted'})
+    }
+    catch(error){
+        return res.status(500).json({msg:error.message})
+    }
+}
+
 export default createPost;
-export {getAllPosts,getPostById};
+export {getAllPosts,getPostById,updatePost,deletePost};

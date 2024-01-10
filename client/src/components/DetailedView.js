@@ -1,5 +1,5 @@
 import {Box,Typography,styled} from '@mui/material';
-import {useParams} from 'react-router-dom';
+import {useParams,Link,useNavigate} from 'react-router-dom';
 import {useEffect,useState,useContext} from "react";
 import getAccessToken from "../utils/common-utils";
 import axios from 'axios';
@@ -11,6 +11,7 @@ const DetailedView = () =>{
     const[post,setPost]=useState({});
     const {id}= useParams();
     const {account} =useContext(DataContext);
+    const navigate= useNavigate();
     
     useEffect(()=> {
         let headers = {
@@ -36,11 +37,15 @@ const DetailedView = () =>{
     const url = post.picture ? post.picture : 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
 
     //css
-    const StyledBox=styled(Box)`
-        margin:110px 100px 50px;
-    `
+    const StyledBox=styled(Box)(({ theme}) =>({
+        margin:`110px 100px 50px`,
+        [theme.breakpoints.down('md')]:{
+            margin:`110px 0 50px`
+        }
+    }));
     const Image = styled('img')({
-        height:'50vh',
+        maxWidth:'100%',
+        maxHeight:'50vh',
         display:'block',
         margin:'0px auto'
 
@@ -72,7 +77,26 @@ const DetailedView = () =>{
     const Description = styled(Typography)`
         word-break: break-word;
     `
-    
+    const deleteBlog = async()=>{
+        let headers = {
+            'authorization': getAccessToken()
+          };
+        
+        await axios.delete('http://localhost:8000/deletePost',{
+            params:{id:post._id},
+            headers: headers 
+          } )
+        .then(response => {
+            if(response.status ===200){
+                console.log('Post Deleted successful:');
+                navigate('/');
+            }
+        })
+        .catch(error => {
+          console.error('Error during Deleting', error);
+        });
+    }
+
     return(
         <StyledBox>
             <Image src={url} alt="blog" />
@@ -80,8 +104,11 @@ const DetailedView = () =>{
             {
                 account.username === post.username && 
                 <> 
-                <Edit color="primary" />
-                <Delete color="error" />
+                <Link to ={`/update/${post._id}`}>
+                     <Edit color="primary" />
+                </Link>
+                <Delete color="error" onClick={()=>{deleteBlog()}}/>
+                
                 </>
             }
             </Box>
