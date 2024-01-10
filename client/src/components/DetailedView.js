@@ -5,14 +5,15 @@ import getAccessToken from "../utils/common-utils";
 import axios from 'axios';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import {DataContext} from "../context/DataProvider"
+import {DataContext} from "../context/DataProvider";
+
 
 const DetailedView = () =>{
     const[post,setPost]=useState({});
     const {id}= useParams();
     const {account} =useContext(DataContext);
     const navigate= useNavigate();
-    
+
     useEffect(()=> {
         let headers = {
             'authorization': getAccessToken()
@@ -25,7 +26,6 @@ const DetailedView = () =>{
             .then(response => {
                 if(response.status === 200){
                     setPost(response.data);
-                    console.log(response.data);
                 }
             })
             .catch(error => {
@@ -43,6 +43,7 @@ const DetailedView = () =>{
             margin:`110px 0 50px`
         }
     }));
+
     const Image = styled('img')({
         maxWidth:'100%',
         maxHeight:'50vh',
@@ -96,7 +97,7 @@ const DetailedView = () =>{
           console.error('Error during Deleting', error);
         });
     }
-
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
     return(
         <StyledBox>
             <Image src={url} alt="blog" />
@@ -115,9 +116,9 @@ const DetailedView = () =>{
             <Title>{post.title}</Title>
             <Author>
                 <Typography>Author: <Box component="span" style={{fontWeight:600}}>{post.username}</Box></Typography>
-                <Typography>{new Date(post.createdDate).toString()}</Typography>
+                <Typography>{new Date(post.createDate).toLocaleString('en-US', options)}</Typography>
             </Author>
-            <Typography>{post.description}</Typography>
+            <Description>{post.description}</Description>
         </StyledBox>
     )
 }

@@ -10,6 +10,8 @@ import Header from "./Header";
 import CreatePost from "./create/CreatePost";
 import DetailedView from "./DetailedView";
 import Update from "./create/Update";
+import About from "./About"
+import Contact from "./Contact"
 
 const PrivateRoute = ({authStatus ,...props}) =>{
    return authStatus ?
@@ -44,6 +46,12 @@ function App() {
              </Route>
              <Route path="/update/:id" element={<PrivateRoute authStatus={authStatus} />} >
                 <Route path='/update/:id' element={<Update />} />
+             </Route>
+             <Route path="/about" element={<PrivateRoute authStatus={authStatus} />} >
+                <Route path='/about' element={<About />} />
+             </Route>
+             <Route path="/contact" element={<PrivateRoute authStatus={authStatus} />} >
+                <Route path='/contact' element={<Contact />} />
              </Route>
              
 
