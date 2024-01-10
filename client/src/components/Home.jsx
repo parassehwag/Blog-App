@@ -1,5 +1,6 @@
 import "../Styles/Home.css";
 import {Grid} from "@mui/material";
+import Posts from "./Posts";
 
 //components
 import Banner from "./Banner";
@@ -14,7 +15,7 @@ function Home(){
                 <Categories />
              </Grid>
              <Grid container item lg={10} sm={10} xs={12}>
-                 Posts
+                 <Posts />
              </Grid> 
           </Grid>
           </>

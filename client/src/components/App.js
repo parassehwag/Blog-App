@@ -8,6 +8,7 @@ import Login from "./Login";
 import Home from "./Home";
 import Header from "./Header";
 import CreatePost from "./create/CreatePost";
+import DetailedView from "./DetailedView";
 
 const PrivateRoute = ({authStatus ,...props}) =>{
    return authStatus ?
@@ -36,6 +37,11 @@ function App() {
              <Route path="/create" element={<PrivateRoute authStatus={authStatus} />} >
                 <Route path='/create' element={<CreatePost />} />
              </Route>
+
+             <Route path="/details/:id" element={<PrivateRoute authStatus={authStatus} />} >
+                <Route path='/details/:id' element={<DetailedView />} />
+             </Route>
+             
 
           </Routes>
        </BrowserRouter>
